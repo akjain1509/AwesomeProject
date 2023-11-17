@@ -1,85 +1,74 @@
-import React from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, FlatList} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  FlatList,
+} from 'react-native';
 import {Colors, Layout} from '../utilities/constant';
-import {selectUser} from '../Features/auth/authSlice';
+import {selectUser, toggleFavorite} from '../Features/auth/authSlice';
 import {useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const HomeScreen = ({navigation}) => {
-  const {data} = useSelector(selectUser);
-  console.log(data, 'HomeScreen');
+  const {data, favorites} = useSelector(selectUser);
 
-  const renderItem = ({item}) => {
+  const dispatch = useDispatch();
+
+  const handleFavoriteToggle = index => {
+    dispatch(toggleFavorite(index));
+  };
+
+  console.log(data, 'losi');
+
+  const renderItem = ({item, index}) => {
+    const isFavorite = favorites.includes(index);
+    const getInitialLetter = name => {
+      return name ? name.charAt(0).toUpperCase() : '';
+    };
     return (
-      <View style={{alignItems: 'center', width: Layout.width, margin: '2%'}}>
-        <View
-          style={{
-            backgroundColor: Colors.white,
-            borderRadius: 10,
-            elevation: 5,
-            shadowColor: Colors.black,
-            shadowOffset: {
-              width: 5,
-              height: 0,
-            },
-            shadowOpacity: 0.5,
-            shadowRadius: 5,
-            width: Layout.width * 0.8,
-            justifyContent: 'center',
-            padding: '2%',
-          }}>
-          <Text
-            style={{
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: 'bold',
-            }}>
-            {item.first_name} {item.last_name}
-          </Text>
-          <Text>{item.jobTitle}</Text>
+      <View style={styles.itemView}>
+        <View style={styles.nameIcon}>
+          <Text style={styles.letter}>{getInitialLetter(item.first_name)}</Text>
         </View>
+        <View style={styles.details}>
+          <Text style={styles.itemText}>
+            {item.first_name}
+            {item.last_name}
+          </Text>
+          <Text style={{fontSize: 14}}>{item.jobTitle}</Text>
+        </View>
+        <TouchableOpacity onPress={() => handleFavoriteToggle(index)}>
+          <Icon
+            name={isFavorite ? 'star' : 'star-o'}
+            size={30}
+            color={isFavorite ? '#ffdf00' : Colors.black}
+          />
+        </TouchableOpacity>
       </View>
     );
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: Colors.white}}>
-      <View
-        style={{
-          flex: 0.1,
-          backgroundColor: Colors.primary,
-          padding: '3%',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        }}>
-        <TouchableOpacity
-          style={{
-            borderRadius: 25,
-            borderColor: Colors.white,
-            height: Layout.height * 0.05,
-            width: Layout.height * 0.05,
-            backgroundColor: Colors.white,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <Text>+</Text>
-        </TouchableOpacity>
-        <Text style={{color: Colors.white}}>Inbox</Text>
-        <TouchableOpacity
-          style={{
-            borderRadius: 25,
-            borderColor: Colors.white,
-            height: Layout.height * 0.05,
-            width: Layout.height * 0.05,
-            backgroundColor: Colors.white,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          {/* <Image
-            source={profile}
+    <View style={styles.root}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
+          <Image
+            source={require('../assets/menu.png')}
             resizeMode="contain"
-            style={styles.profile_logo}
-          /> */}
-          <Text>+</Text>
+            style={{height: Layout.height * 0.1}}
+          />
+        </TouchableOpacity>
+        <Text style={styles.heading}>INBOX</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('AddEmployee')}>
+          <Image
+            source={require('../assets/add.png')}
+            resizeMode="contain"
+            style={{height: Layout.height * 0.05}}
+          />
         </TouchableOpacity>
       </View>
       <View style={{flex: 1, alignItems: 'center'}}>
@@ -90,30 +79,66 @@ const HomeScreen = ({navigation}) => {
           keyExtractor={(item, index) => index.toString()}
         />
       </View>
-      <TouchableOpacity
-        style={{
-          width: Layout.width * 0.7,
-          height: Layout.height * 0.1,
-          borderRadius: 5,
-          backgroundColor: Colors.primary,
-          justifyContent: 'center',
-        }}
-        onPress={() => navigation.navigate('Home')}>
-        <Text
-          style={{
-            color: Colors.white,
-            textAlign: 'center',
-            fontWeight: 'bold',
-            fontSize: 18,
-          }}>
-          Add
-        </Text>
-      </TouchableOpacity>
-      <Text>HomeScreen</Text>
     </View>
   );
 };
 
 export default HomeScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    justifyContent: 'space-between',
+  },
+  header: {
+    backgroundColor: Colors.primary,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: '5%',
+  },
+  heading: {
+    color: Colors.white,
+    fontWeight: 'bold',
+    fontSize: 18,
+    textTransform: 'uppercase',
+  },
+  itemView: {
+    margin: '3%',
+    backgroundColor: Colors.white,
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 5,
+      height: 0,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    width: Layout.width * 0.8,
+    padding: '4%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  nameIcon: {
+    backgroundColor: Colors.primary,
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  letter: {color: Colors.white, fontSize: 16},
+  details: {
+    flexDirection: 'column',
+    flex: 1,
+    padding: '2%',
+  },
+  itemText: {
+    color: Colors.black,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});

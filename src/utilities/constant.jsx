@@ -9,4 +9,5 @@ export const Colors = {
   primary: '#2AAA8A',
   black: '#000',
   white: '#fff',
+  red: 'red',
 };

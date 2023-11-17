@@ -4,21 +4,27 @@ import {
   Text,
   View,
   TextInput,
-  Button,
   TouchableOpacity,
 } from 'react-native';
 import {Layout, Colors} from '../utilities/constant';
 import {Formik} from 'formik';
+import validationSchema from '../utilities/formSchema';
 import {setData} from '../Features/auth/authSlice';
 import {Selector, useDispatch} from 'react-redux';
+import Toast from 'react-native-toast-message';
 
 const AddEmployee = ({navigation}) => {
   const dispatch = useDispatch();
 
   const handleAdd = values => {
-    console.log(values);
     dispatch(setData(values));
-    navigation.navigate('Home');
+    Toast.show({
+      type: 'success',
+      text1: 'Success',
+      text2: 'Added Successfully',
+      position: 'bottom',
+    });
+    navigation.navigate('Drawer');
   };
   return (
     <View style={styles.root}>
@@ -32,8 +38,9 @@ const AddEmployee = ({navigation}) => {
           jobTitle: '',
           salary: '',
         }}
+        validationSchema={validationSchema}
         onSubmit={handleAdd}>
-        {({handleChange, handleBlur, handleSubmit, values}) => (
+        {({handleChange, handleBlur, handleSubmit, values, errors}) => (
           <>
             <View style={styles.input}>
               <Text style={styles.label}>First name</Text>
@@ -43,6 +50,7 @@ const AddEmployee = ({navigation}) => {
                 value={values.first_name}
                 style={styles.text}
               />
+              <Text style={styles.error}>{errors.first_name}</Text>
             </View>
             <View style={styles.input}>
               <Text style={styles.label}>Last name</Text>
@@ -52,6 +60,7 @@ const AddEmployee = ({navigation}) => {
                 value={values.last_name}
                 style={styles.text}
               />
+              <Text style={styles.error}>{errors.last_name}</Text>
             </View>
             <View style={styles.input}>
               <Text style={styles.label}>Job Title</Text>
@@ -61,6 +70,7 @@ const AddEmployee = ({navigation}) => {
                 value={values.jobTitle}
                 style={styles.text}
               />
+              <Text style={styles.error}>{errors.jobTitle}</Text>
             </View>
             <View style={styles.input}>
               <Text style={styles.label}>Salary</Text>
@@ -70,27 +80,11 @@ const AddEmployee = ({navigation}) => {
                 value={values.salary}
                 style={styles.text}
               />
+              <Text style={styles.error}>{errors.salary}</Text>
             </View>
-            <View style={{flex: 1 / 2, justifyContent: 'center'}}>
-              <TouchableOpacity
-                style={{
-                  width: Layout.width * 0.8,
-                  height: Layout.height * 0.07,
-                  borderRadius: 5,
-                  backgroundColor: Colors.primary,
-                  justifyContent: 'center',
-                  alignSelf: 'center',
-                }}
-                onPress={handleSubmit}>
-                <Text
-                  style={{
-                    color: Colors.white,
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                    fontSize: 18,
-                  }}>
-                  Save
-                </Text>
+            <View style={styles.btnView}>
+              <TouchableOpacity style={styles.btn} onPress={handleSubmit}>
+                <Text style={styles.btnText}>Save</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -132,6 +126,25 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.primary,
     paddingVertical: '1%',
+    fontSize: 14,
+  },
+  btnView: {flex: 1 / 2, justifyContent: 'center'},
+  btn: {
+    width: Layout.width * 0.8,
+    height: Layout.height * 0.07,
+    borderRadius: 5,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  btnText: {
+    color: Colors.white,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  error: {
+    color: Colors.red,
     fontSize: 14,
   },
 });
